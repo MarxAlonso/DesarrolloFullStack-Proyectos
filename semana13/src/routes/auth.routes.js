@@ -30,6 +30,15 @@ router.post("/login", async (req,res) => {
             return res.status(400).json({ error: "Credenciales invalidas" });
 
         const user = rows[0];
+        const valid = await bcrypt.compare(password, user.password_hash);
+        if(!valid) return res.status(400).json({error: "Contraseña incorrecta"});
+
+        const token = signAccessToken({
+            id: user.id,
+            email: user.email,
+            role: user.role,
+        });
+        res.json({token});
     } catch(err){
         res.status(500).json({ error: "Error al iniciar sesión" });
     }
